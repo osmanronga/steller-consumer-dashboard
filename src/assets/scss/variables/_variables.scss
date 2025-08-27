@@ -1,0 +1,44 @@
+//  ================================================================================================
+//  ? TIP:  It is recommended to use this file for overriding bootstrap variables.
+//  ================================================================================================
+$primary: #ffc436;   // Change primary color
+$secondary: #ffc436; // Change secondary color
+
+
+.logo-background {
+    background-color: $primary;
+}
+
+.btn-primary {
+    color: black !important; 
+    font-weight: bold !important;
+}
+
+.btn-danger {
+    color: white !important;
+    font-weight: bold !important;
+}
+
+.outline-secondary {
+    color: white !important;
+    font-weight: bold !important;
+}
+
+.main-menu.menu-light .navigation > li.active > a {
+    color: black !important; 
+    font-weight: bold !important;
+}
+
+.badge {
+    color: black !important;
+}
+
+// .badge.badge-warning,.badge.badge-primary {
+//     color: black !important;
+// }
+
+table tr th {
+    color: black !important;
+    font-size: initial;
+}
+

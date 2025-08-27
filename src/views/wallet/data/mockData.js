@@ -1,0 +1,45 @@
+export const mockWalletData = {
+  balance: 2500.00,
+  transactions: [
+    {
+      id: '1',
+      type: 'deposit',
+      amount: 1000.00,
+      date: '2024-03-15T10:30:00',
+      status: 'completed',
+      description: 'Initial deposit',
+    },
+    {
+      id: '2',
+      type: 'withdrawal',
+      amount: -500.00,
+      date: '2024-03-16T14:20:00',
+      status: 'completed',
+      description: 'Withdrawal to bank account',
+    },
+    {
+      id: '3',
+      type: 'deposit',
+      amount: 750.00,
+      date: '2024-03-17T09:15:00',
+      status: 'completed',
+      description: 'Payment received',
+    },
+    {
+      id: '4',
+      type: 'withdrawal',
+      amount: -250.00,
+      date: '2024-03-18T16:45:00',
+      status: 'pending',
+      description: 'Pending withdrawal',
+    },
+    {
+      id: '5',
+      type: 'deposit',
+      amount: 1500.00,
+      date: '2024-03-19T11:20:00',
+      status: 'completed',
+      description: 'Payment received',
+    },
+  ],
+} 

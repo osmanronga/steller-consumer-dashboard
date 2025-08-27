@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>CORS Connection Tester</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 20px;
+        line-height: 1.6;
+      }
+      .container {
+        border: 1px solid #ddd;
+        padding: 20px;
+        border-radius: 5px;
+        background-color: #f9f9f9;
+      }
+      input,
+      button {
+        padding: 8px;
+        margin: 5px 0;
+      }
+      input {
+        width: 100%;
+        box-sizing: border-box;
+      }
+      button {
+        background-color: #4caf50;
+        color: white;
+        border: none;
+        cursor: pointer;
+        margin-right: 10px;
+      }
+      button:hover {
+        background-color: #45a049;
+      }
+      #result {
+        margin-top: 20px;
+        padding: 10px;
+        border-radius: 5px;
+      }
+      .success {
+        background-color: #dff0d8;
+        color: #3c763d;
+        border: 1px solid #d6e9c6;
+      }
+      .error {
+        background-color: #f2dede;
+        color: #a94442;
+        border: 1px solid #ebccd1;
+      }
+      .info {
+        background-color: #d9edf7;
+        color: #31708f;
+        border: 1px solid #bce8f1;
+      }
+      .request-types {
+        margin: 15px 0;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>CORS Connection Tester</h1>
+      <p>Test if your server properly handles Cross-Origin Requests</p>
+
+      <div>
+        <label for="url">API Endpoint URL:</label>
+        <input
+          type="text"
+          id="url"
+          placeholder="https://api.example.com/data"
+          value="https://jsonplaceholder.typicode.com/posts/1"
+        />
+      </div>
+
+      <div class="request-types">
+        <button onclick="testRequest('GET')">Test GET</button>
+        <button onclick="testRequest('POST')">Test POST</button>
+        <button onclick="testRequest('PUT')">Test PUT</button>
+        <button onclick="testRequest('DELETE')">Test DELETE</button>
+        <button onclick="testRequest('OPTIONS')">
+          Test OPTIONS (Preflight)
+        </button>
+      </div>
+
+      <div>
+        <label>
+          <input type="checkbox" id="withCredentials" /> Include credentials
+          (withCredentials)
+        </label>
+      </div>
+
+      <div>
+        <label for="customHeaders">Custom Headers (JSON format):</label>
+        <input
+          type="text"
+          id="customHeaders"
+          placeholder='{"Authorization": "Bearer token", "X-Custom-Header": "value"}'
+        />
+      </div>
+
+      <div id="result"></div>
+      <div id="responseDetails"></div>
+    </div>
+
+    <script>
+      function testRequest(method) {
+        const url = document.getElementById("url").value.trim();
+        const withCredentials =
+          document.getElementById("withCredentials").checked;
+        const customHeadersInput = document
+          .getElementById("customHeaders")
+          .value.trim();
+
+        const resultDiv = document.getElementById("result");
+        const responseDiv = document.getElementById("responseDetails");
+
+        resultDiv.innerHTML = "";
+        responseDiv.innerHTML = "";
+
+        if (!url) {
+          showResult("Please enter a URL", "error");
+          return;
+        }
+
+        let customHeaders = {};
+        try {
+          if (customHeadersInput) {
+            customHeaders = JSON.parse(customHeadersInput);
+          }
+        } catch (e) {
+          showResult("Invalid JSON in custom headers", "error");
+          return;
+        }
+
+        showResult(`Testing ${method} request to ${url}...`, "info");
+
+        const options = {
+          method: method,
+          mode: "cors",
+          credentials: withCredentials ? "include" : "same-origin",
+          headers: {
+            "Content-Type": "application/json",
+            ...customHeaders,
+          },
+        };
+
+        if (method !== "GET" && method !== "OPTIONS") {
+          options.body = JSON.stringify({ test: "CORS test data" });
+        }
+
+        fetch(url, options)
+          .then((response) => {
+            // Get all response headers
+            const headers = {};
+            response.headers.forEach((value, key) => {
+              headers[key] = value;
+            });
+
+            const result = {
+              status: response.status,
+              statusText: response.statusText,
+              headers: headers,
+              url: response.url,
+              redirected: response.redirected,
+              type: response.type,
+              ok: response.ok,
+            };
+
+            if (method === "OPTIONS") {
+              // For OPTIONS requests, we don't expect a body
+              showResult(`OPTIONS (Preflight) request successful!`, "success");
+              showResponseDetails(result);
+              return;
+            }
+
+            return response
+              .json()
+              .then((data) => {
+                result.data = data;
+                return result;
+              })
+              .catch(() => {
+                return response.text().then((text) => {
+                  result.text = text;
+                  return result;
+                });
+              });
+          })
+          .then((result) => {
+            if (!result) return;
+
+            if (result.ok) {
+              showResult(`${method} request successful!`, "success");
+            } else {
+              showResult(
+                `${method} request failed with status ${result.status}`,
+                "error"
+              );
+            }
+            showResponseDetails(result);
+          })
+          .catch((error) => {
+            showResult(`${method} request failed: ${error.message}`, "error");
+            showResponseDetails({ error: error.message });
+          });
+      }
+
+      function showResult(message, type) {
+        const resultDiv = document.getElementById("result");
+        resultDiv.className = type;
+        resultDiv.innerHTML = message;
+      }
+
+      function showResponseDetails(details) {
+        const responseDiv = document.getElementById("responseDetails");
+        responseDiv.innerHTML = `
+                <h3>Response Details:</h3>
+                <pre>${JSON.stringify(details, null, 2)}</pre>
+            `;
+      }
+    </script>
+  </body>
+</html>
